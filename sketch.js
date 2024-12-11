@@ -1,11 +1,11 @@
 let mydata = {};
 
 function setup() {
-  mydata = loadJSON("sortedFilteredTop20.json", drawData);
+  mydata = loadJSON("MonthOfJanuary.json", drawData);
   noCanvas();
 }
 
-function drawData(spotifydata2024){
+function drawData(mydata){
   
 }
 
@@ -51,7 +51,7 @@ for (let i = 0; i < rows; i++) {
       const x = j * rectWidth;
       const y = i * rectHeight;
       const rect = Matter.Bodies.rectangle(x + rectWidth / 2, y + rectHeight / 2, rectWidth, rectHeight, 
-        { isStatic: false, render: {fillStyle: 'rgb(' + map(mydata[index][1], 102, 436, 0, 255) + ', 0, 0)',
+        { isStatic: false, render: {fillStyle: 'rgb(' + map(mydata[index][1], 0, 200, 0, 255) + ', 0, 0)',
           text: {content: mydata[index][0] + ' ' + mydata[index][1],
             color: "#ffffff",
             size: 16}
@@ -62,19 +62,51 @@ for (let i = 0; i < rows; i++) {
   }
 }
   
-for(index in mydata){
-  console.log(mydata[index][0]);
-}
-
   document.body.appendChild(render.canvas);
   
+  // Funktion, die aufgerufen wird, wenn ein Rechteck geklickt wird
+  function onClick(event) {
+    const rect = engine.world.bodies.find(body => {
+      return body.bounds.min.x <= event.mouse.position.x &&
+             event.mouse.position.x <= body.bounds.max.x &&
+             body.bounds.min.y <= event.mouse.position.y &&
+             event.mouse.position.y <= body.bounds.max.y;
+    });
+    if (rect) {
+      // Ändere die Größe des geklickten Rechtecks
+      rect.width *= 1.5;
+      rect.height *= 1.5;
+  
+      // Anpassen der anderen Rechtecke
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < Math.ceil(Math.sqrt(numElements)); j++) {
+          const index = i * Math.ceil(Math.sqrt(numElements)) + j;
+          if (index < numElements) {
+            const otherRect = engine.world.bodies[index];
+            if (otherRect !== rect) {
+              // Anpassen der Größe des anderen Rechtecks
+              otherRect.width *= 0.9;
+              otherRect.height *= 0.9;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // Hinzufügen der onClick-Funktion zu jedem Rechteck
+  function render() {
+    // ...
+    if (mouse.isDown) {
+      onClick({ mouse: mouse });
+    }
+    // ...
+    Render.run(render);
+  }
 
   // Erstelle einen Runner und starte ihn
   const runner = Runner.create();
   Runner.run(runner, engine);
-
-  // Starte das Rendering
-  Render.run(render);
 
 noLoop();
 }
