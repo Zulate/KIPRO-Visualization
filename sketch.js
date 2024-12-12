@@ -4,7 +4,7 @@ let Mouse = Matter.Mouse;
 let MouseConstraint = Matter.MouseConstraint;
 
 function setup() {
-  mydata = loadJSON("MonthOfJanuary.json", drawData);
+  mydata = loadJSON("2024WholeYear.json", drawData);
   noCanvas();
 }
 
@@ -56,8 +56,8 @@ for (let i = 0; i < rows; i++) {
       const rect = Matter.Bodies.rectangle(x + rectWidth / 2, y + rectHeight / 2, rectWidth, rectHeight, 
         { isStatic: true, render: {fillStyle: 'rgb(' + map(mydata[index][1], 0, 200, 0, 255) + ', 0, 0)',
           text: {content: mydata[index][0] + ' ' + mydata[index][1],
-            color: "#ffffff",
-            size: 16}
+            color: 'rgb(' + map(mydata[index][1], 0, 200, 0, 255) + ', 0, 0)',
+            size: 6}
         } }
       )
       Matter.World.add(engine.world, rect);
