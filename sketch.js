@@ -54,9 +54,9 @@ for (let i = 0; i < rows; i++) {
       const x = j * rectWidth;
       const y = i * rectHeight;
       const rect = Matter.Bodies.rectangle(x + rectWidth / 2, y + rectHeight / 2, rectWidth, rectHeight, 
-        { isStatic: true, render: {fillStyle: 'rgb(' + map(mydata[index][1], 0, 200, 0, 255) + ', 0, 0)',
+        { isStatic: false, render: {fillStyle: 'rgb(0, ' + map(mydata[index][1], 0, 400, 0, 255) + ', 0)',
           text: {content: mydata[index][0] + ' ' + mydata[index][1],
-            color: 'rgb(' + map(mydata[index][1], 0, 200, 0, 255) + ', 0, 0)',
+            color: 'hsl(' + map(mydata[index][1], 0, 400, 0, 360) + ', 0, 100)',
             size: 6}
         } }
       )
@@ -66,7 +66,6 @@ for (let i = 0; i < rows; i++) {
   }
 }
 console.log(selectedRect);
-
 
  let mouse = Mouse.create(render.canvas);
  let mouseConstraint = MouseConstraint.create(engine, {
@@ -79,14 +78,21 @@ console.log(selectedRect);
   }
  })
 
- Matter.Events.on(mouseConstraint, "mousedown", (event) => {
-  const selectedRect = event.source.body;
-  // Matter.Body.scale(selectedRect, 1.5, 1.5);
-console.log("geklicktes Rect:", selectedRect.render.text.content);
+//  Matter.Events.on(engine, 'beforeUpdate', function(event){
 
-  });
+//   var mousePosition = MouseConstraint.mouse.position;
 
-Matter.World.add(engine.world, mouseConstraint, rect);
+//   const selectedRect = Matter.Query.point(engine.world.bodies, mousePosition);
+//   console.log(selectedRect);
+  
+//   // Matter.Body.scale(selectedRect, 1.5, 1.5);
+// // console.log("Datum:", selectedRect.render.text.content.split(" ")[0], "Anzahl Streams:", selectedRect.render.text.content.split(" ")[1]);
+
+//   });
+
+console.log(engine.world.constraints);
+
+Matter.World.add(engine.world, mouseConstraint, ...selectedRect);
 
   // Erstelle einen Runner und starte ihn
   const runner = Runner.create();
@@ -94,6 +100,7 @@ Matter.World.add(engine.world, mouseConstraint, rect);
 
   render.mouse = mouse;
   Render.run(render);
+
 
 noLoop();
 }
