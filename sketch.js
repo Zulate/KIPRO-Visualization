@@ -54,7 +54,7 @@ for (let i = 0; i < rows; i++) {
       const x = j * rectWidth;
       const y = i * rectHeight;
       const rect = Matter.Bodies.rectangle(x + rectWidth / 2, y + rectHeight / 2, rectWidth, rectHeight, 
-        { isStatic: false, render: {fillStyle: 'rgb(0, ' + map(mydata[index][1], 0, 400, 0, 255) + ', 0)',
+        { isStatic: true, render: {fillStyle: 'rgb(0, ' + map(mydata[index][1], 0, 400, 0, 255) + ', 0)',
           text: {content: mydata[index][0] + ' ' + mydata[index][1],
             color: 'hsl(' + map(mydata[index][1], 0, 400, 0, 360) + ', 0, 100)',
             size: 6}
@@ -65,7 +65,6 @@ for (let i = 0; i < rows; i++) {
     }
   }
 }
-console.log(selectedRect);
 
  let mouse = Mouse.create(render.canvas);
  let mouseConstraint = MouseConstraint.create(engine, {
@@ -78,19 +77,39 @@ console.log(selectedRect);
   }
  })
 
-//  Matter.Events.on(engine, 'beforeUpdate', function(event){
+ 
 
-//   var mousePosition = MouseConstraint.mouse.position;
+ let rectUnderMouseScaled = false;
+ let previousRect = null;
 
-//   const selectedRect = Matter.Query.point(engine.world.bodies, mousePosition);
-//   console.log(selectedRect);
+ Matter.Events.on(engine, 'beforeUpdate', function(event){
+
   
-//   // Matter.Body.scale(selectedRect, 1.5, 1.5);
-// // console.log("Datum:", selectedRect.render.text.content.split(" ")[0], "Anzahl Streams:", selectedRect.render.text.content.split(" ")[1]);
+  let mousePosition = {x: mouseX, y: mouseY};
+  let rectUnderMouse = Matter.Query.point(selectedRect, mousePosition);
+  const originalScale = rectUnderMouse[0].scale / 1.5;
 
-//   });
+  if (rectUnderMouse.length > 0) {
+    if (rectUnderMouse[0] !== previousRect) {
+      // Wenn die Mausposition ein neues Rechteck betrifft, skalier das neue Rechteck
+      Matter.Body.scale(rectUnderMouse[0], 1.5, 1.5);
+      Matter.Body.scale(previousRect, originalScale, originalScale);
+      previousRect = rectUnderMouse[0];
+    }
+  } else {
+    // Wenn die Mausposition nicht innerhalb eines Rechtecks liegt, skalier das vorherige Rechteck zurück
+    if (previousRect) {
+      const originalScale = previousRect.scale.x / 1.5;
+      Matter.Body.scale(previousRect, originalScale, originalScale);
+      previousRect = null;
+    }
+  }
 
-console.log(engine.world.constraints);
+});
+
+  // Matter.Body.scale(selectedRect, 1.5, 1.5);
+// console.log("Datum:", selectedRect.render.text.content.split(" ")[0], "Anzahl Streams:", selectedRect.render.text.content.split(" ")[1]);
+
 
 Matter.World.add(engine.world, mouseConstraint, ...selectedRect);
 
