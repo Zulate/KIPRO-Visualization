@@ -92,14 +92,14 @@ for (let i = 0; i < rows; i++) {
   if (rectUnderMouse.length > 0) {
     if (rectUnderMouse[0] !== previousRect) {
       // Wenn die Mausposition ein neues Rechteck betrifft, skalier das neue Rechteck
-      Matter.Body.scale(rectUnderMouse[0], 1.5, 1.5);
-      Matter.Body.scale(previousRect, originalScale, originalScale);
+      rectUnderMouse[0].scale * 1.5;
+      previousRect.scale / 1.5;
       previousRect = rectUnderMouse[0];
     }
   } else {
     // Wenn die Mausposition nicht innerhalb eines Rechtecks liegt, skalier das vorherige Rechteck zurück
     if (previousRect) {
-      const originalScale = previousRect.scale.x / 1.5;
+      const originalScale = previousRect.scale / 1.5;
       Matter.Body.scale(previousRect, originalScale, originalScale);
       previousRect = null;
     }
