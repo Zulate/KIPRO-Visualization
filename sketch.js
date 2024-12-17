@@ -2,6 +2,7 @@ let mydata = {};
 let selectedRect = [];
 let Mouse = Matter.Mouse;
 let MouseConstraint = Matter.MouseConstraint;
+let monthValues;
 
 function setup() {
   mydata = loadJSON("2024WholeYear.json", drawData);
@@ -39,25 +40,43 @@ for(index in mydata){
 }
 
 const numElements = anzahlIndex;
-const viewportWidth = window.innerWidth - (window.innerWidth / 2);
-const viewportHeight = window.innerHeight - (window.innerWidth / 10);
+const rows = Math.ceil(numElements / Math.ceil(Math.sqrt(numElements)));
+
+const viewportWidth = window.innerWidth - 50;
+const viewportHeight = window.innerHeight - (window.innerHeight / Math.sqrt(numElements)) - 50;
+
 const rectWidth = viewportWidth / Math.ceil(Math.sqrt(numElements));
 const rectHeight = viewportHeight / Math.ceil(numElements / Math.ceil(Math.sqrt(numElements)));
 
-const rows = Math.ceil(numElements / Math.ceil(Math.sqrt(numElements)));
+
 
 for (let i = 0; i < rows; i++) {
   for (let j = 0; j < Math.ceil(Math.sqrt(numElements)); j++) {
+
     const index = i * Math.ceil(Math.sqrt(numElements)) + j;
     
     if (index < numElements) {
-      const x = j * rectWidth + viewportWidth / 2;
-      const y = i * rectHeight + viewportHeight / 10;
-      const rect = Matter.Bodies.rectangle(x + rectWidth / 2, y + rectHeight / 2, rectWidth, rectHeight, 
-        { isStatic: false, render: {fillStyle: 'rgb(0, ' + map(mydata[index][1], 0, 400, 25, 255) + ', 0)'
-          // text: {content: mydata[index][0] + ' ' + mydata[index][1],
-          //   color: "#ffffff",
-          //   size: viewportWidth / 100}
+
+      for(let i = 0; i < 11; i++){}
+      if(mydata[index][0].includes("2024-01")){monthValues = 0;}
+      if(mydata[index][0].includes("2024-02")){monthValues = 5;}
+      if(mydata[index][0].includes("2024-03")){monthValues = 10;}
+      if(mydata[index][0].includes("2024-04")){monthValues = 15;}
+      if(mydata[index][0].includes("2024-05")){monthValues = 20;}
+      if(mydata[index][0].includes("2024-06")){monthValues = 25;}
+      if(mydata[index][0].includes("2024-07")){monthValues = 30;}
+      if(mydata[index][0].includes("2024-08")){monthValues = 35;}
+      if(mydata[index][0].includes("2024-09")){monthValues = 40;}
+      if(mydata[index][0].includes("2024-10")){monthValues = 45;}
+      if(mydata[index][0].includes("2024-11")){monthValues = 50;}
+
+      const x = j * rectWidth + 25;
+      const y = i * rectHeight + 25;
+      const rect = Matter.Bodies.rectangle(x + rectWidth / 2 , y + rectHeight / 2 + monthValues, rectWidth, rectHeight, 
+        { isStatic: true, render: {fillStyle: 'hsl(' + 0 + (monthValues * 3) + 'deg, 100%, ' + map(mydata[index][1], 20, 450, 20, 90) + '%)',
+          text: {content: mydata[index][1],
+            color: '#ffffff',
+            size: 12}
         }}
       )
       rect.collisionFilter.group = -1;
@@ -67,7 +86,9 @@ for (let i = 0; i < rows; i++) {
     }
   }
 }
- let mouse = Mouse.create(render.canvas);
+
+
+let mouse = Mouse.create(render.canvas);
  let mouseConstraint = MouseConstraint.create(engine, {
   mouse: mouse,
   constraint: {
@@ -78,45 +99,28 @@ for (let i = 0; i < rows; i++) {
   }
  })
 
- function drawRectsToBasePosition() {
-  for (const rect of selectedRect) {
-    const currentPosition = rect.position; // Die aktuelle Position des Rechtecks
-    const basePosition = {x: rect.basePosition.x, y: rect.basePosition.y}; // Die Basisposition des Rechtecks
-    const distanceToBasePosition = Matter.Vector.magnitude(Matter.Vector.sub(basePosition, currentPosition)); // Der Abstand zwischen der Basisposition und der aktuellen Position
-    let directionToBasePosition = rect.directionToBasePosition; // Der Vektor, der die Richtung zur Basisposition angibt
-    
-    if (!directionToBasePosition) {
-      directionToBasePosition = Matter.Vector.create();
-      rect.directionToBasePosition = directionToBasePosition;
-    }
-    
-    Matter.Vector.sub(basePosition, currentPosition, directionToBasePosition);
-    const length = Matter.Vector.magnitude(directionToBasePosition);
-    directionToBasePosition.x /= length;
-    directionToBasePosition.y /= length;
-
-    const maxForce = 10;
-const force = {
-  x: Math.min(directionToBasePosition.x * (distanceToBasePosition / 100), maxForce),
-  y: Math.min(directionToBasePosition.y * (distanceToBasePosition / 100), maxForce)
-};
-    Matter.Body.applyForce(rect, rect.position, force);
-  }
-}
-
  Matter.Events.on(engine, 'beforeUpdate', function(event){
-  
-  // let mousePosition = {x: mouseX, y: mouseY};
-  // let rectUnderMouse = Matter.Query.point(selectedRect, mousePosition);
-  
-  drawRectsToBasePosition();
 
 });
 
-// console.log("Datum:", selectedRect.render.text.content.split(" ")[0], "Anzahl Streams:", selectedRect.render.text.content.split(" ")[1]);
+Matter.Events.on(mouseConstraint, 'mousedown', (event) => {
 
+  console.clear();
 
-
+  const mousePosition = { x: event.mouse.position.x, y: event.mouse.position.y };
+  const index = selectedRect.findIndex((rect) => {
+    return (
+      rect.bounds.min.x <= mousePosition.x &&
+      rect.bounds.max.x >= mousePosition.x &&
+      rect.bounds.min.y <= mousePosition.y &&
+      rect.bounds.max.y >= mousePosition.y
+    );
+  });
+  if (index !== -1) {
+    console.log("Datum:", mydata[index][0] + ".", "An diesem Tag habe ich", selectedRect[index].render.text.content, "-mal gestreamt");
+  }
+  
+});
 
 Matter.World.add(engine.world, mouseConstraint, ...selectedRect);
 
